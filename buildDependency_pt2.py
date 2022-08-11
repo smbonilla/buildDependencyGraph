@@ -50,7 +50,8 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
                 for i in range(len(currline) - 1):
                     
                     # check if the file has been changed 
-                    if currline[i + 1] in changedFiles:
+                    # if currline[i + 1] in changedFiles:
+                    if matchGlob(currline[i + 1], changedFiles):
                         
                         # return only name of the task
                         taskLine = taskDefinitionsInput[lineCount - 1].split()
@@ -67,6 +68,17 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
     else:
         print('All inputs must be strings!')
 
+def matchGlob(glob, changedFiles):
+
+    letterCount = 0
+
+
+        if letter in ['.','^','$','+','?','<','>','[',']','{','}','|']:
+            glob = glob[:letterCount] + "\\" + glob[letterCount:]
+        
+        letterCount += 1
+    
+    print(glob)
 
 def test_tasksToRun(calculated, true):
     '''
