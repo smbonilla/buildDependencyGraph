@@ -4,14 +4,80 @@
 # Author: Sierra Bonilla
 # Date: 11-03-2022
 
+
 def tasksToRun(taskDefinitionsInput, changedFiles):
-    print('hi')
+    '''
+    tasksToRun Function checks the files in the tasks in
+    taskDefinitionsInput for changedFiles and output the tasks 
+    that need to be rerun.
 
-if __name__ == '__main__':
+    Args:
+    taskDefinitionsInput (list of strings): a list of task definitions
+        with exactly 4 lines for each task. The first line must be 
+        prefixed by 'task:', second line prefixed with 'files:', and
+        third line prefixed with 'deps:'.
+    changedFiles (list of strings): is a list of file paths that 
+        have recently changed.
 
+    Returns:
+    tasksChanged (list of strings):
+        a list of task names that should re-run.
+    '''
+
+    # check that the inputs are correct file type 
+    if all(isinstance(item, str) for item in taskDefinitionsInput) and all(isinstance(item, str) for item in changedFiles): 
+
+        # initialize tasksChanged 
+        tasksChanged = []
+
+        # count current line number
+        lineCount = 0
+
+        # loop through the lines in taskDefinitionsInput and determine if 
+        # files in changedFiles are a child
+        for lines in taskDefinitionsInput:
+
+            # split up the current line into individual elements
+            currline = lines.split()
+
+            # check that current line isn't empty and if the current line is the files line  
+            if currline and currline[0] == 'files:':
+
+                # loop through files 
+                for i in range(len(currline) - 1):
+                    
+                    # check if the file has been changed 
+                    if currline[i + 1] in changedFiles:
+                        
+                        # return only name of the task
+                        taskLine = taskDefinitionsInput[lineCount - 1].split()
+
+                        # check if already added before
+                        if taskLine[1] not in tasksChanged:
+                            tasksChanged.append(taskLine[1])
+
+            # increment line count
+            lineCount += 1
+
+        return tasksChanged
+
+    else:
+        print('All inputs must be strings!')
+
+
+def test_tasksToRun(calculated, true):
+
+    if calculated == true:
+
+        print('Test Passed!')
+
+
+if __name__ == "__main__":
+    
+    # test taskDefinitionsInput
     taskDefinitionsInput = [
         "task: taskA",
-        "files: lib/foo.txt lib/bar.txt"
+        "files: lib/foo.txt lib/bar.txt",
         "deps:",
         "",
         "task: taskB",
@@ -22,9 +88,18 @@ if __name__ == '__main__':
         "files: README.md",
         "deps:",
         ""]
-        
+
+    # test changedFiles
     changedFiles = [
         "lib/foo.txt",
         "README.md"]
 
-    tasksToRun(taskDefinitionsInput,changedFiles)
+    # define true answer
+    true = [
+        "taskA",
+        "taskC"]
+
+    calculated = tasksToRun(taskDefinitionsInput,changedFiles)
+
+    # test answer from tasksToRun
+    test_tasksToRun(calculated, true)
