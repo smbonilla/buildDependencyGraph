@@ -66,10 +66,26 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
 
 
 def test_tasksToRun(calculated, true):
+    '''
+    test_tasksToRun Function checks that the answer is correct
+    and prints if the test has passed.
+
+    Args:
+    calculated (list of strings): a list of tasks to be changed 
+        output from the tasksToRun function.
+    true (list of strings): true list of tasks to be changed.
+
+    :
+    tasksChanged (list of strings):
+        a list of task names that should re-run.
+    '''
 
     if calculated == true:
 
-        print('Test Passed!')
+        print('Test Passed!!!')
+
+    else:
+        print('Test did not pass :(')
 
 
 if __name__ == "__main__":
