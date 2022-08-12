@@ -33,7 +33,7 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
         # initialize tasksChanged 
         tasksChanged = []
 
-        # count current line number
+        # initialize count current line number
         lineCount = 0
 
         # loop through the lines in taskDefinitionsInput and determine if 
@@ -68,17 +68,76 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
     else:
         print('All inputs must be strings!')
 
-def matchGlob(glob, changedFiles):
+def escapeSpecialChars(file):
+    '''
+    escapeSpecialChars Function takes a string as an input and
+    escapes all special characters denoted by the regexp engine
+    and replaces the * global pattern with '.*?' which signifies
+    to the regexp function to look for any set of characters that 
+    matches with the minimal amount possible. 
 
-    letterCount = 0
+    Args:
+    file (string): pathway to be corrected string
 
+    Returns:
+    fileProcessed (string): file pathway processed
+    '''
 
-        if letter in ['.','^','$','+','?','<','>','[',']','{','}','|']:
-            glob = glob[:letterCount] + "\\" + glob[letterCount:]
+    # escapes all special characters
+    fileProcessed = re.escape(file)
+
+    # replaces global * with .*?
+    fileProcessed = re.sub(r'\\\*',r'.*?',fileProcessed)
+
+    # letterCount = 0
+
+    # for letter in file:
+    #     # if letter in ['.','^','$','+','?','<','>','[',']','{','}','|']:
+    #     #     file = file[:letterCount] + '\\' + file[letterCount:]
+    #     # elif letter == '*':
+    #     #     file = file[:letterCount] + '.' + file[letterCount+1:]
         
-        letterCount += 1
-    
-    print(glob)
+    #     letterCount += 1
+
+    return fileProcessed
+
+def matchGlob(glob, changedFiles):
+    '''
+    matchGlob Function takes the global pattern and the
+    changed files and processed the strings for the regexp
+    engine and then uses re.search to find a match.
+
+    Args:
+    glob (string): global file pathway 
+    changedFiles (list of strings): changed file pathway
+
+    Returns:
+    fileProcessed (string): file pathway processed
+    '''
+
+    # initalize corrected filepath for changedFiles removing special chars
+    correctedPaths = [None]*len(changedFiles)
+
+    # changedFile index count
+    fileCount = 0
+
+    # change format of changedFiles
+    for filepath in changedFiles:
+        correctedPaths[fileCount] = escapeSpecialChars(filepath)
+        fileCount += 1
+
+    # change format for global file
+    globProcessed = escapeSpecialChars(glob)
+
+    for path in correctedPaths:
+        # print('Looking for "%s" in "%s" --> ' %(globProcessed, path), end=' '),
+        if re.search(globProcessed, path):
+            # print('Found a Match!')
+            return True
+        else:
+            # print('No Match!')
+            return False
+
 
 def test_tasksToRun(calculated, true):
     '''
@@ -96,7 +155,7 @@ def test_tasksToRun(calculated, true):
     '''
 
     # check if equal and output to terminal if test passed!
-    if calculated == true:
+    if set(calculated) == set(true):
 
         print('Test Passed!!!')
 
@@ -133,7 +192,6 @@ if __name__ == "__main__":
         "distributeImages"]
 
     calculated = tasksToRun(taskDefinitionsInput,changedFiles)
-    print(calculated)
 
     # test answer from tasksToRun
     test_tasksToRun(calculated, true)
