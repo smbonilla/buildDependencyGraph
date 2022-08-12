@@ -1,12 +1,11 @@
-# Part 2 of Practice for Palantir Online Interview found on:
+# Part 3 of Practice for Palantir Online Interview found on:
 # https://leetcode.com/discuss/interview-question/2372796/Palantir-Online-Interview
 #
 # Author: Sierra Bonilla
-# Date: 11-03-2022
+# Date: 12-03-2022
 
 # built-in RegEx Module
 import re
-
 
 def tasksToRun(taskDefinitionsInput, changedFiles):
     '''
@@ -155,7 +154,7 @@ def test_tasksToRun(calculated, true):
     '''
 
     # check if equal and output to terminal if test passed!
-    if set(calculated) == set(true):
+    if calculated == true:
 
         print('Test Passed!!!')
 
@@ -167,31 +166,23 @@ if __name__ == "__main__":
     
     # test taskDefinitionsInput
     taskDefinitionsInput = [
-        "task: distributeImages",
-        "files: images/dogs/*.jpg images/*/*.png",
-        "deps: compressJpegs compressPngs",
-        "",
-        "task: compressJpegs",
-        "files: images/dogs/*.jpg",
-        "deps:",
-        "",
-        "task: compressPngs",
-        "files: images/*/*.png",
-        "deps:",
-        ""]
+        "task: eatDinner",  "files: kitchen-setup.txt plates.txt",  "deps: cookRice bakePotatoes setupPlates", "",
+        "task: cookRice",  "files: kitchen-setup.txt rice-instructions.txt",  "deps:", "",
+        "task: bakePotatoes",  "files: kitchen-setup.txt potato-recipe.txt",  "deps:", "",
+        "task: setupPlates",  "files: plates.txt",  "deps:", ""]
 
     # test changedFiles
-    changedFiles = [
-        "images/dogs/dalmatian.jpg",
-        "images/dogs/retriever.jpg"
-        ]
+    changedFiles = ["kitchen-setup.txt"]
 
     # define true answer
     true = [
-        "compressJpegs",
-        "distributeImages"]
+        "cookRice",
+        "bakePotatoes",
+        "eatDinner",
+        ]
 
     calculated = tasksToRun(taskDefinitionsInput,changedFiles)
+    print(calculated)
 
     # test answer from tasksToRun
     test_tasksToRun(calculated, true)
