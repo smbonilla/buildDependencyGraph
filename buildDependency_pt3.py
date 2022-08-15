@@ -7,6 +7,41 @@
 # built-in RegEx Module
 import re
 
+class Graph:
+
+    def __init__(self, taskDefinitionsInput):
+        '''
+        Graph class defines a dependency graph object that can be used
+        to traverse through the tree.
+        
+        Attributes:
+        deps (dictionary): 
+            name --> name of the task
+            key  --> list of dependencies
+        '''
+
+        # define total number of tasks in taskDefinitionsInput
+        numTasks = int(len(taskDefinitionsInput)/4)
+        
+        # intializing dictionary to store dependencies
+        self.deps = {}
+
+        # loop through all tasks
+        for i in range(numTasks):
+            
+            # saving one task and its properties to defineOneTask variable
+            defineOneTask = taskDefinitionsInput[i*4:(i*4)+3]
+
+            # saving the task name to name variable
+            name =  defineOneTask[0].split()
+
+            # saving the dependents to depsList variable
+            depsList = defineOneTask[2].split()
+
+            # creating dictionary
+            self.deps[name[1]] = depsList[1:]
+
+
 def tasksToRun(taskDefinitionsInput, changedFiles):
     '''
     tasksToRun Function checks the files in the tasks in
@@ -62,6 +97,10 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
             # increment line count
             lineCount += 1
 
+        # sort the tasksChanged by the dependents according to the depencyGraph created
+        graph = Graph(taskDefinitionsInput)
+        sortedTasksChanged = sortTasks(tasksChanged, graph)
+
         return tasksChanged
 
     else:
@@ -103,8 +142,8 @@ def escapeSpecialChars(file):
 def matchGlob(glob, changedFiles):
     '''
     matchGlob Function takes the global pattern and the
-    changed files and processed the strings for the regexp
-    engine and then uses re.search to find a match.
+    changed files and calls escapeSpecialChars on the strings 
+    for the regexp engine and then uses re.search to find a match.
 
     Args:
     glob (string): global file pathway 
@@ -137,6 +176,26 @@ def matchGlob(glob, changedFiles):
             # print('No Match!')
             return False
 
+def sortTasks(tasksChanged, graph):
+    '''
+    sortTasks Function determines dependencies and sorts tasks to be run 
+    in the correct order (leaf --> root)/
+
+    Args:
+    tasksChanged (list of strings): a list of tasks to be changed 
+        output from the tasksToRun function.
+    graph (Graph object): a Graph object that defines the dependencies
+        of each task
+
+    Returns:
+    sortTasks (list of strings):
+        a list of task names that should re-run in the correct order.
+    '''
+
+    for item in tasksChanged: 
+        print(graph.deps[item])
+
+
 
 def test_tasksToRun(calculated, true):
     '''
@@ -148,7 +207,7 @@ def test_tasksToRun(calculated, true):
         output from the tasksToRun function.
     true (list of strings): true list of tasks to be changed.
 
-    :
+    Returns:
     tasksChanged (list of strings):
         a list of task names that should re-run.
     '''
@@ -182,7 +241,11 @@ if __name__ == "__main__":
         ]
 
     calculated = tasksToRun(taskDefinitionsInput,changedFiles)
-    print(calculated)
+
+    print('Expected -->  "%s"  Received -->  "%s"' %(true, calculated))
 
     # test answer from tasksToRun
     test_tasksToRun(calculated, true)
+
+    # graph = Graph(taskDefinitionsInput)
+    # print(graph.deps['eatDinner'])

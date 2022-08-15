@@ -4,7 +4,6 @@
 # Author: Sierra Bonilla
 # Date: 11-03-2022
 
-
 def tasksToRun(taskDefinitionsInput, changedFiles):
     '''
     tasksToRun Function checks the files in the tasks in
@@ -80,6 +79,7 @@ def test_tasksToRun(calculated, true):
         a list of task names that should re-run.
     '''
 
+    # check if equal and output to terminal if test passed!
     if calculated == true:
 
         print('Test Passed!!!')
