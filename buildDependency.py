@@ -1,12 +1,3 @@
-# Part 3 of Practice for Palantir Online Interview found on:
-# https://leetcode.com/discuss/interview-question/2372796/Palantir-Online-Interview
-#
-# Author: Sierra Bonilla
-# Date: 12-03-2022
-
-# built-in RegEx Module
-import re
-
 class Graph:
 
     def __init__(self, taskDefinitionsInput):
@@ -40,7 +31,6 @@ class Graph:
 
             # creating dictionary
             self.deps[name[1]] = depsList[1:]
-
 
 def tasksToRun(taskDefinitionsInput, changedFiles):
     '''
@@ -85,7 +75,7 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
                     
                     # check if the file has been changed 
                     # if currline[i + 1] in changedFiles:
-                    if matchGlob(currline[i + 1], changedFiles):
+                    if currline[i + 1] in changedFiles:
                         
                         # return only name of the task
                         taskLine = taskDefinitionsInput[lineCount - 1].split()
@@ -97,103 +87,42 @@ def tasksToRun(taskDefinitionsInput, changedFiles):
             # increment line count
             lineCount += 1
 
-        # sort the tasksChanged by the dependents according to the depencyGraph created
+        # create a graph object using the taskDefinitionsInput
         graph = Graph(taskDefinitionsInput)
-        sortedTasksChanged = sortTasks(tasksChanged, graph)
-
-        return tasksChanged
-
-    else:
-        print('All inputs must be strings!')
-
-def escapeSpecialChars(file):
-    '''
-    escapeSpecialChars Function takes a string as an input and
-    escapes all special characters denoted by the regexp engine
-    and replaces the * global pattern with '.*?' which signifies
-    to the regexp function to look for any set of characters that 
-    matches with the minimal amount possible. 
-
-    Args:
-    file (string): pathway to be corrected string
-
-    Returns:
-    fileProcessed (string): file pathway processed
-    '''
-
-    # escapes all special characters
-    fileProcessed = re.escape(file)
-
-    # replaces global * with .*?
-    fileProcessed = re.sub(r'\\\*',r'.*?',fileProcessed)
-
-    # letterCount = 0
-
-    # for letter in file:
-    #     # if letter in ['.','^','$','+','?','<','>','[',']','{','}','|']:
-    #     #     file = file[:letterCount] + '\\' + file[letterCount:]
-    #     # elif letter == '*':
-    #     #     file = file[:letterCount] + '.' + file[letterCount+1:]
         
-    #     letterCount += 1
+        # find root of task tree
+        root = findRoots(graph, tasksChanged)
+        
+        # find order of running the changed tasks
+        visited = []
+        visited = exploreDFS(graph, root[0], visited, tasksChanged)
+        visited.insert(0,root[0]) 
 
-    return fileProcessed
+        return visited
 
-def matchGlob(glob, changedFiles):
-    '''
-    matchGlob Function takes the global pattern and the
-    changed files and calls escapeSpecialChars on the strings 
-    for the regexp engine and then uses re.search to find a match.
+def exploreDFS(graph, task, visited, tasksChanged):
+    
+    if task:
+        for neighbor in graph.deps[task]:
+            if neighbor in tasksChanged:
+                exploreDFS(graph, neighbor, visited, tasksChanged)
+                visited.append(neighbor)
 
-    Args:
-    glob (string): global file pathway 
-    changedFiles (list of strings): changed file pathway
+    return visited
 
-    Returns:
-    fileProcessed (string): file pathway processed
-    '''
+def findRoots(graph, tasksChanged):
 
-    # initalize corrected filepath for changedFiles removing special chars
-    correctedPaths = [None]*len(changedFiles)
+    visited = []
 
-    # changedFile index count
-    fileCount = 0
+    keysList = list(graph.deps.keys())
 
-    # change format of changedFiles
-    for filepath in changedFiles:
-        correctedPaths[fileCount] = escapeSpecialChars(filepath)
-        fileCount += 1
+    for item in keysList:
 
-    # change format for global file
-    globProcessed = escapeSpecialChars(glob)
+        visited = exploreDFS(graph, item, visited, tasksChanged)
+    
+    roots = list(set(graph.deps.keys()) - set(visited))
 
-    for path in correctedPaths:
-        # print('Looking for "%s" in "%s" --> ' %(globProcessed, path), end=' '),
-        if re.search(globProcessed, path) or globProcessed == path:
-            # print('Found a Match!')
-            return True
-        else:
-            # print('No Match!')
-            return False
-
-def sortTasks(tasksChanged, graph):
-    '''
-    sortTasks Function determines dependencies and sorts tasks to be run 
-    in the correct order (leaf --> root)/
-
-    Args:
-    tasksChanged (list of strings): a list of tasks to be changed 
-        output from the tasksToRun function.
-    graph (Graph object): a Graph object that defines the dependencies
-        of each task
-
-    Returns:
-    sortTasks (list of strings):
-        a list of task names that should re-run in the correct order.
-    '''
-
-    for item in tasksChanged: 
-        print(graph.deps[item])
+    return roots
 
 
 

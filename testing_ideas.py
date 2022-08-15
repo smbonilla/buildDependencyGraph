@@ -28,3 +28,16 @@ class Node:
         allDependents = defineOneTask[2].split()
         for k in range(len(allDependents) - 1):
             self.dependents.append(allDependents[k + 1])
+
+class BuildGraph:
+    def __init__(self, cities):
+        self.adjList = {}
+        
+        for city in cities:
+            if city[0] not in self.adjList.keys():
+                self.adjList[city[0]] = []
+            if city[1] not in self.adjList.keys():
+                self.adjList[city[1]] = []
+            
+            self.adjList[city[0]].append(city[1])
+            self.adjList[city[1]].append(city[0])
